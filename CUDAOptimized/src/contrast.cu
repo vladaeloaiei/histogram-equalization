@@ -44,8 +44,8 @@ __global__ static void equalizeHistogram_kernel(void *out,
     __syncthreads();
 
     //pixelMappingSize == cumulativeHistogramSize
-    pixelMapping[i] = (int) (cumulativeHistogram[i] * (cumulativeHistogramSize - 1) /
-                             cumulativeHistogram[cumulativeHistogramSize - 1]);
+    pixelMapping[i] = (int) (sharedCumulativeHistogram[i] * (cumulativeHistogramSize - 1) /
+                             sharedCumulativeHistogram[cumulativeHistogramSize - 1]);
 }
 
 
