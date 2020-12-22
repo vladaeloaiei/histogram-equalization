@@ -10,7 +10,7 @@ __global__ static void computeHistogram_kernel(void *out,
     unsigned int i = threadIdx.x;
 
     for (int j = 0; j < cols; ++j) {
-        histogram[image[i * cols + j]]++;
+        atomicAdd(histogram + image[i * cols + j], 1);
     }
 }
 
