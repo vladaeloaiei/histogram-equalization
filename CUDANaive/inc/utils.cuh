@@ -26,4 +26,15 @@ cudaError_t runKernelWithCuda(void(*kernel)(void *, const void *, const void *),
                               int rows,
                               int cols);
 
+template<class T>
+static __inline__ __host__ cudaError_t cudaCalloc(T **devPtr, size_t size) {
+    cudaError_t cudaStatus = cudaMalloc((void **) devPtr, size);
+
+    if (cudaStatus == cudaSuccess) {
+        cudaStatus = cudaMemset(*devPtr, 0, size);
+    }
+
+    return cudaStatus;
+}
+
 #endif //HISTOGRAM_EQUALIZATION_UTILS_CUH

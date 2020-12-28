@@ -23,9 +23,9 @@ int main() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    for (int i = 0; i < 100; ++i) {
+    //for (int i = 0; i < 100; ++i) {
         enhanceContrast(enhancedImage, image, GRAYSCALE_RANGE);
-    }
+    //}
 
     auto finish = std::chrono::high_resolution_clock::now();
     std::cout << "Histogram equalization run time GPU optimized : "

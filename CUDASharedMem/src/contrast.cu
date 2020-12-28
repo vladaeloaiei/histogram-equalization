@@ -7,11 +7,10 @@ __global__ static void computeHistogram_kernel(void *out,
     int *histogram = (int *) out;
     const unsigned char *image = (unsigned char *) in1;
     unsigned int cols = blockDim.x;
-    unsigned int i = threadIdx.x;
+    unsigned int i = blockIdx.x;
+    unsigned int j = threadIdx.x;
 
-    for (int j = 0; j < cols; ++j) {
-        atomicAdd(histogram + image[i * cols + j], 1);
-    }
+    atomicAdd(histogram + image[i * cols + j], 1);
 }
 
 static void computeHistogram(int *output, const cv::Mat &input, int histogramRange) {
@@ -22,8 +21,8 @@ static void computeHistogram(int *output, const cv::Mat &input, int histogramRan
                                                (int) (histogramRange * sizeof(int)),
                                                (int) (input.cols * input.rows * sizeof(unsigned char)),
                                                0,
-                                               1,
                                                input.rows,
+                                               input.cols,
                                                0);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "addWithCuda failed!");

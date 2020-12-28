@@ -29,19 +29,19 @@ cudaError_t runKernelWithCuda(void(*kernel)(void *, const void *, const void *),
     }
 
     // Allocate GPU buffers for three vectors (two input, one output)    .
-    cudaStatus = cudaMalloc((void **) &dev_in1, inSize1InBytes);
+    cudaStatus = cudaCalloc((void **) &dev_in1, inSize1InBytes);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed!");
         goto Error;
     }
 
-    cudaStatus = cudaMalloc((void **) &dev_in2, inSize2InBytes);
+    cudaStatus = cudaCalloc((void **) &dev_in2, inSize2InBytes);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed!");
         goto Error;
     }
 
-    cudaStatus = cudaMalloc((void **) &dev_out, outSizeInBytes);
+    cudaStatus = cudaCalloc((void **) &dev_out, outSizeInBytes);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed!");
         goto Error;
