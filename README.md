@@ -4,7 +4,7 @@ Image contrast enhancement using histogram equalization
 Multiple implementations:
 * Classic CPU
 * Naive CUDA
-* Optimized CUDA (Shared memory)
+* CUDA(Shared memory
 
 Tools used:
 * CUDA
