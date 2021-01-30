@@ -13,7 +13,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#define LOW_CONTRAST_LENA "../input/lac.png"
+#define LOW_CONTRAST_LENA "../input/251x253.png"
 
 using namespace cv;
 

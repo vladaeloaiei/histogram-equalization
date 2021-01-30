@@ -1,9 +1,12 @@
 #include "contrast.cuh"
 #include "utils.cuh"
 #include <cmath>
+#include <iostream>
 
 #define BATCH_DIM 32
 #define STREAM_COUNT BATCH_DIM
+
+static int deviceToHostTime = 0;
 
 __global__ static void computeHistogram_kernel(int *histogram, const uchar *inputPixels, int size) {
     int start = (blockDim.x * blockIdx.x + threadIdx.x) * BATCH_DIM;
@@ -189,6 +192,8 @@ static cudaError_t applyHistogramEqualizationOnImage(uchar *outputPixels, uchar 
         fprintf(stderr, "Failed to launch applyHistogramEqualizationOnImage_kernel: %s\n", cudaGetErrorString(cudaStatus));
     }
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     cudaStatus = cudaMemcpy(outputPixels,
                             dev_inputPixels,
                             rows * cols * sizeof(uchar),
@@ -197,6 +202,9 @@ static cudaError_t applyHistogramEqualizationOnImage(uchar *outputPixels, uchar 
         fprintf(stderr, "outputPixels cudaMemcpyAsync failed!\n");
         return cudaStatus;
     }
+
+    auto finish = std::chrono::high_resolution_clock::now();
+    deviceToHostTime += std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
 
     for (int i = 0; (i < STREAM_COUNT) && ((i * blocks) < rows); ++i) {
         cudaStreamDestroy(streams[i]);
@@ -275,6 +283,8 @@ cudaError_t enhanceContrast(cv::Mat &outputImage, const cv::Mat &inputImage, int
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "Failed to enhance contrast. Status = %s\n", cudaGetErrorString(cudaStatus));
     }
+
+    std::cout << "Transfer Device->Host GPU : " << deviceToHostTime << "microsec\n";
 
     //free resources
     cudaFree(dev_inputPixels);

@@ -4,7 +4,7 @@
 #include "contrast.h"
 #include "utils.h"
 
-#define LOW_CONTRAST_LENA "../input/lac.png"
+#define LOW_CONTRAST_LENA "../input/3060x2022.png"
 
 int main() {
     cv::Mat image = imread(LOW_CONTRAST_LENA, cv::IMREAD_GRAYSCALE);
@@ -14,9 +14,9 @@ int main() {
 
     enhanceContrast(enhancedImage, image, GRAYSCALE_RANGE);
 
-    auto finish = std::chrono::high_resolution_clock::now();
+    auto stop = std::chrono::high_resolution_clock::now();
     std::cout << "Histogram equalization run time CPU : "
-              << std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count() << "microsec\n";
+              << std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count() << "microsec\n";
 
 
     //PLOTTING

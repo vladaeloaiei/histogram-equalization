@@ -4,6 +4,9 @@
 #include <opencv2/highgui.hpp>
 #include <iostream>
 
+static int hostToDeviceTime = 0;
+static int deviceToHostTime = 0;
+
 cudaError_t runKernelWithCuda(void(*kernel)(void *, const void *, const void *),
                               void *out,
                               const void *in1,
@@ -20,6 +23,7 @@ cudaError_t runKernelWithCuda(void(*kernel)(void *, const void *, const void *),
     cudaError_t cudaStatus;
 
     auto start = std::chrono::high_resolution_clock::now();
+    auto finish = std::chrono::high_resolution_clock::now();
 
     // Choose which GPU to run on, change this on a multi-GPU system.
     cudaStatus = cudaSetDevice(0);
@@ -47,6 +51,8 @@ cudaError_t runKernelWithCuda(void(*kernel)(void *, const void *, const void *),
         goto Error;
     }
 
+    start = std::chrono::high_resolution_clock::now();
+
     // Copy input vectors from host memory to GPU buffers.
     cudaStatus = cudaMemcpy(dev_in1, in1, inSize1InBytes, cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
@@ -60,9 +66,8 @@ cudaError_t runKernelWithCuda(void(*kernel)(void *, const void *, const void *),
         goto Error;
     }
 
-//    auto finish = std::chrono::high_resolution_clock::now();
-//    std::cout << "Transfer Host->Device GPU : "
-//              << std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count() << "microsec\n";
+    finish = std::chrono::high_resolution_clock::now();
+    hostToDeviceTime += std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
 
     // Launch a kernel on the GPU with one thread for each element.
     if (0 == sharedMemorySizeInBytes) {
@@ -88,6 +93,8 @@ cudaError_t runKernelWithCuda(void(*kernel)(void *, const void *, const void *),
         goto Error;
     }
 
+    start = std::chrono::high_resolution_clock::now();
+
     // Copy output vector from GPU buffer to host memory.
     cudaStatus = cudaMemcpy(out, dev_out, outSizeInBytes, cudaMemcpyDeviceToHost);
     if (cudaStatus != cudaSuccess) {
@@ -95,9 +102,11 @@ cudaError_t runKernelWithCuda(void(*kernel)(void *, const void *, const void *),
         goto Error;
     }
 
-//    finish = std::chrono::high_resolution_clock::now();
-//    std::cout << "Transfer Device->Host GPU : "
-//              << std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count() << "microsec\n";
+    finish = std::chrono::high_resolution_clock::now();
+    deviceToHostTime += std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
+
+    std::cout << "Transfer Host->Device GPU : " << hostToDeviceTime << "microsec\n";
+    std::cout << "Transfer Device->Host GPU : " << deviceToHostTime << "microsec\n";
 
     Error:
     cudaFree(dev_in1);
